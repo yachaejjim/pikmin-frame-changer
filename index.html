@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>피크민 블룸 프레임 바꾸기</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 28px 16px 40px;
+            margin: 0;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        h1 {
+            margin: 0 0 18px;
+            font-size: 25px;
+        }
+
+        .guide {
+            margin: 0 auto 25px;
+            max-width: 600px;
+            line-height: 1.7;
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            background: white;
+            padding: 16px 18px;
+            border-radius: 12px;
+        }
+
+        .guide strong {
+            color: #222;
+            font-size: 15px;
+        }
+
+        .upload-button {
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background: #222;
+            color: white;
+            min-height: 48px;
+        }
+
+        .upload-button:hover {
+            opacity: 0.8;
+        }
+
+        #changePhotoButton {
+            margin-top: 8px;
+        }
+
+        .frames-title {
+            margin-top: 28px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .frames {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin: 0 auto 25px;
+            max-width: 700px;
+            overflow-x: auto;
+            padding: 5px 2px 10px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .frame-button {
+            flex: 0 0 82px;
+            width: 82px;
+            height: 82px;
+            padding: 4px;
+            background: white;
+            border: 2px solid transparent;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .frame-button:hover {
+            border-color: #999;
+        }
+
+        .frame-button.selected {
+            border-color: #222;
+        }
+
+        .frame-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .preview-container {
+            position: relative;
+            width: 500px;
+            max-width: 100%;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        #photo {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        #frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .download-area {
+            margin-top: 25px;
+        }
+
+        .download-area p {
+            margin-bottom: 12px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .download-button {
+            padding: 13px 18px;
+            margin: 4px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: white;
+            min-height: 48px;
+        }
+
+        .download-button:hover {
+            background: #eee;
+        }
+
+        .download-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 24px 14px 35px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            .guide {
+                font-size: 13px;
+                padding: 15px;
+            }
+
+            .upload-button {
+                width: 100%;
+                max-width: 360px;
+            }
+
+            .frames {
+                margin-left: -2px;
+                margin-right: -2px;
+            }
+
+            .frame-button {
+                flex-basis: 78px;
+                width: 78px;
+                height: 78px;
+            }
+
+            .download-button {
+                width: calc(50% - 12px);
+                max-width: 180px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>피크민 블룸 프레임 바꾸기</h1>
+
+
+    <!-- 사용 방법 -->
+    <div class="guide">
+        <strong>사용 방법</strong><br>
+        ① 프레임을 바꾸고 싶은 엽서를 선택하세요.<br>
+        (게임에서 바로 다운받아 사용 권장)<br>
+        ② 마음에 드는 프레임을 선택하세요.<br>
+        ③ 완성된 엽서를 PNG 또는 JPG로 저장하세요.
+    </div>
+
+
+    <!-- 엽서 선택 -->
+    <input
+        type="file"
+        id="photoInput"
+        accept="image/*"
+        hidden
+    >
+
+    <button
+        id="selectButton"
+        class="upload-button"
+    >
+        엽서 선택하기
+    </button>
+
+    <br>
+
+    <button
+        id="changePhotoButton"
+        class="upload-button"
+        hidden
+    >
+        다른 엽서 선택하기
+    </button>
+
+
+    <!-- 프레임 선택 -->
+    <div class="frames-title">
+        프레임 선택
+    </div>
+
+    <div
+        class="frames"
+        id="frames"
+    >
+        <!-- 프레임 버튼 자동 생성 -->
+    </div>
+
+
+    <!-- 합성 미리보기 -->
+    <div
+        class="preview-container"
+        id="previewContainer"
+        hidden
+    >
+
+        <img
+            id="photo"
+            alt="선택한 엽서"
+        >
+
+        <img
+            id="frame"
+            alt="선택한 프레임"
+        >
+
+    </div>
+
+
+    <!-- 다운로드 -->
+    <div class="download-area">
+
+        <p>
+            완성된 엽서를 저장하세요.
+        </p>
+
+        <button
+            id="downloadPng"
+            class="download-button"
+            disabled
+        >
+            PNG로 저장
+        </button>
+
+        <button
+            id="downloadJpg"
+            class="download-button"
+            disabled
+        >
+            JPG로 저장
+        </button>
+
+    </div>
+
+
+    <script>
+
+        const selectButton =
+            document.getElementById("selectButton");
+
+        const changePhotoButton =
+            document.getElementById("changePhotoButton");
+
+        const photoInput =
+            document.getElementById("photoInput");
+
+        const photo =
+            document.getElementById("photo");
+
+        const frame =
+            document.getElementById("frame");
+
+        const previewContainer =
+            document.getElementById("previewContainer");
+
+        const framesContainer =
+            document.getElementById("frames");
+
+        const downloadPng =
+            document.getElementById("downloadPng");
+
+        const downloadJpg =
+            document.getElementById("downloadJpg");
+
+
+        // 현재 선택된 프레임
+        let selectedFrame = null;
+
+
+        // --------------------------------
+        // 프레임 자동 불러오기
+        // --------------------------------
+
+        async function loadFrames() {
+
+            for (let i = 1; i <= 100; i++) {
+
+                const filename =
+                    "frame" + i + ".png";
+
+                try {
+
+                    const response =
+                        await fetch(
+                            filename,
+                            {
+                                method: "HEAD"
+                            }
+                        );
+
+
+                    if (response.ok) {
+
+                        createFrameButton(
+                            filename
+                        );
+
+                    }
+
+                } catch (error) {
+
+                    // 존재하지 않는 파일은 건너뜀
+
+                }
+
+            }
+
+
+            // 첫 번째 프레임 자동 선택
+            const firstButton =
+                framesContainer.querySelector(
+                    ".frame-button"
+                );
+
+
+            if (firstButton) {
+
+                firstButton.click();
+
+            }
+
+        }
+
+
+        // --------------------------------
+        // 프레임 버튼 만들기
+        // --------------------------------
+
+        function createFrameButton(filename) {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.className =
+                "frame-button";
+
+
+            button.dataset.frame =
+                filename;
+
+
+            const image =
+                document.createElement(
+                    "img"
+                );
+
+
+            image.src =
+                filename;
+
+
+            image.alt =
+                "프레임";
+
+
+            button.appendChild(
+                image
+            );
+
+
+            framesContainer.appendChild(
+                button
+            );
+
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    selectedFrame =
+                        filename;
+
+
+                    frame.src =
+                        selectedFrame;
+
+
+                    const buttons =
+                        document.querySelectorAll(
+                            ".frame-button"
+                        );
+
+
+                    buttons.forEach(
+                        function (item) {
+
+                            item.classList.remove(
+                                "selected"
+                            );
+
+                        }
+                    );
+
+
+                    button.classList.add(
+                        "selected"
+                    );
+
+                }
+            );
+
+        }
+
+
+        // 프레임 불러오기
+        loadFrames();
+
+
+        // --------------------------------
+        // 엽서 선택
+        // --------------------------------
+
+        function openPhotoPicker() {
+
+            photoInput.click();
+
+        }
+
+
+        selectButton.addEventListener(
+            "click",
+            function () {
+
+                openPhotoPicker();
+
+            }
+        );
+
+
+        changePhotoButton.addEventListener(
+            "click",
+            function () {
+
+                photoInput.value = "";
+
+                openPhotoPicker();
+
+            }
+        );
+
+
+        // --------------------------------
+        // 엽서가 선택됐을 때
+        // --------------------------------
+
+        photoInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    photoInput.files[0];
+
+
+                if (!file) {
+                    return;
+                }
+
+
+                const imageURL =
+                    URL.createObjectURL(
+                        file
+                    );
+
+
+                photo.src =
+                    imageURL;
+
+
+                // 미리보기 표시
+                previewContainer.hidden =
+                    false;
+
+
+                // 다른 엽서 버튼 표시
+                changePhotoButton.hidden =
+                    false;
+
+
+                // 다운로드 활성화
+                downloadPng.disabled =
+                    false;
+
+
+                downloadJpg.disabled =
+                    false;
+
+            }
+        );
+
+
+        // --------------------------------
+        // 이미지 합성 및 다운로드
+        // --------------------------------
+
+        function downloadComposite(format) {
+
+            if (
+                !photo.src
+            ) {
+
+                alert(
+                    "먼저 엽서를 선택해주세요."
+                );
+
+                return;
+
+            }
+
+
+            if (!selectedFrame) {
+
+                alert(
+                    "프레임을 선택해주세요."
+                );
+
+                return;
+
+            }
+
+
+            const photoImage =
+                new Image();
+
+
+            const frameImage =
+                new Image();
+
+
+            photoImage.onload =
+                function () {
+
+
+                    frameImage.onload =
+                        function () {
+
+
+                            const canvas =
+                                document.createElement(
+                                    "canvas"
+                                );
+
+
+                            canvas.width =
+                                frameImage.naturalWidth;
+
+
+                            canvas.height =
+                                frameImage.naturalHeight;
+
+
+                            const ctx =
+                                canvas.getContext(
+                                    "2d"
+                                );
+
+
+                            // 엽서
+                            ctx.drawImage(
+                                photoImage,
+                                0,
+                                0,
+                                canvas.width,
+                                canvas.height
+                            );
+
+
+                            // 프레임
+                            ctx.drawImage(
+                                frameImage,
+                                0,
+                                0,
+                                canvas.width,
+                                canvas.height
+                            );
+
+
+                            let mimeType;
+                            let extension;
+
+
+                            if (
+                                format === "png"
+                            ) {
+
+                                mimeType =
+                                    "image/png";
+
+                                extension =
+                                    "png";
+
+                            } else {
+
+                                mimeType =
+                                    "image/jpeg";
+
+                                extension =
+                                    "jpg";
+
+                            }
+
+
+                            canvas.toBlob(
+                                function (blob) {
+
+                                    if (!blob) {
+
+                                        alert(
+                                            "다운로드할 이미지를 만들지 못했어요."
+                                        );
+
+                                        return;
+
+                                    }
+
+
+                                    const url =
+                                        URL.createObjectURL(
+                                            blob
+                                        );
+
+
+                                    const link =
+                                        document.createElement(
+                                            "a"
+                                        );
+
+
+                                    link.href =
+                                        url;
+
+
+                                    link.download =
+                                        "pikmin-postcard." +
+                                        extension;
+
+
+                                    document.body.appendChild(
+                                        link
+                                    );
+
+
+                                    link.click();
+
+
+                                    document.body.removeChild(
+                                        link
+                                    );
+
+
+                                    setTimeout(
+                                        function () {
+
+                                            URL.revokeObjectURL(
+                                                url
+                                            );
+
+                                        },
+                                        1000
+                                    );
+
+                                },
+                                mimeType,
+                                0.95
+                            );
+
+                        };
+
+
+                    frameImage.src =
+                        selectedFrame;
+
+                };
+
+
+            photoImage.src =
+                photo.src;
+
+        }
+
+
+        // PNG 저장
+        downloadPng.addEventListener(
+            "click",
+            function () {
+
+                downloadComposite(
+                    "png"
+                );
+
+            }
+        );
+
+
+        // JPG 저장
+        downloadJpg.addEventListener(
+            "click",
+            function () {
+
+                downloadComposite(
+                    "jpg"
+                );
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>
+
