@@ -354,52 +354,57 @@
 
         async function loadFrames() {
 
-            for (let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= 100; i++) {
 
-                const filename =
-                    "frame" + i + ".png";
+        const filename =
+            "frame" + i + ".png";
 
-                try {
+        await new Promise(function (resolve) {
 
-                    const response =
-                        await fetch(
-                            filename,
-                            {
-                                method: "HEAD"
-                            }
-                        );
+            const image =
+                new Image();
 
-                    if (response.ok) {
+            image.onload =
+                function () {
 
-                        createFrameButton(
-                            filename
-                        );
+                    createFrameButton(
+                        filename
+                    );
 
-                    }
+                    resolve();
 
-                } catch (error) {
+                };
+
+            image.onerror =
+                function () {
 
                     // 존재하지 않는 파일은 건너뜀
+                    resolve();
 
-                }
+                };
 
-            }
+            image.src =
+                filename;
 
+        });
 
-            // 첫 번째 프레임 자동 선택
-            const firstButton =
-                framesContainer.querySelector(
-                    ".frame-button"
-                );
+    }
 
 
-            if (firstButton) {
+    // 첫 번째 프레임 자동 선택
+    const firstButton =
+        framesContainer.querySelector(
+            ".frame-button"
+        );
 
-                firstButton.click();
 
-            }
+    if (firstButton) {
 
-        }
+        firstButton.click();
+
+    }
+
+}
 
 
         // --------------------------------
