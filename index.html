@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>피크민 블룸 프레임 바꾸기</title>
+    <title>🌱피크민 블룸 프레임 바꾸기🌱</title>
 
     <style>
         * {
@@ -56,10 +56,6 @@
 
         .upload-button:hover {
             opacity: 0.8;
-        }
-
-        #changePhotoButton {
-            margin-top: 8px;
         }
 
         .frames-title {
@@ -161,6 +157,25 @@
             cursor: not-allowed;
         }
 
+        .site-footer {
+            max-width: 700px;
+            margin: 45px auto 0;
+            padding: 20px 16px 5px;
+            border-top: 1px solid #ddd;
+            color: #888;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .site-footer strong {
+            color: #666;
+        }
+
+        /* 출처 강조 */
+        .source-highlight {
+            color: #1976d2;
+        }
+
         @media (max-width: 600px) {
 
             body {
@@ -193,8 +208,8 @@
             }
 
             .download-button {
-                width: calc(50% - 12px);
-                max-width: 180px;
+                width: 100%;
+                max-width: 360px;
             }
         }
     </style>
@@ -211,7 +226,7 @@
         ① 프레임을 바꾸고 싶은 엽서를 선택하세요.<br>
         (게임에서 바로 다운받아 사용 권장)<br>
         ② 마음에 드는 프레임을 선택하세요.<br>
-        ③ 완성된 엽서를 PNG 또는 JPG로 저장하세요.
+        ③ 완성된 엽서를 PNG로 저장하세요.
     </div>
 
 
@@ -228,16 +243,6 @@
         class="upload-button"
     >
         엽서 선택하기
-    </button>
-
-    <br>
-
-    <button
-        id="changePhotoButton"
-        class="upload-button"
-        hidden
-    >
-        다른 엽서 선택하기
     </button>
 
 
@@ -289,24 +294,36 @@
             PNG로 저장
         </button>
 
-        <button
-            id="downloadJpg"
-            class="download-button"
-            disabled
-        >
-            JPG로 저장
-        </button>
-
     </div>
+
+
+    <!-- 출처 및 안내 -->
+    <footer class="site-footer">
+
+        <strong>출처 및 안내</strong><br>
+
+        해당 페이지는 개인이 제작하였으며 공식 서비스가 아닙니다.<br>
+
+        게임 관련 이미지 및 상표의 권리는 각 권리자에게 있습니다.<br><br>
+
+        한국 피크민 블룸 커뮤니티인<br>
+        <span class="source-highlight">디시인사이드 피크민 갤러리</span> 유저들을 위해 제작되었습니다.<br>
+
+        <span class="source-highlight">
+            외부에 공유할 경우, 반드시 출처를 명시해 주세요.
+        </span><br><br>
+
+        Please credit the source when sharing.<br>
+        共有する際は、必ず出典を明記してください.<br>
+        分享時請務必註明來源.
+
+    </footer>
 
 
     <script>
 
         const selectButton =
             document.getElementById("selectButton");
-
-        const changePhotoButton =
-            document.getElementById("changePhotoButton");
 
         const photoInput =
             document.getElementById("photoInput");
@@ -325,9 +342,6 @@
 
         const downloadPng =
             document.getElementById("downloadPng");
-
-        const downloadJpg =
-            document.getElementById("downloadJpg");
 
 
         // 현재 선택된 프레임
@@ -354,7 +368,6 @@
                                 method: "HEAD"
                             }
                         );
-
 
                     if (response.ok) {
 
@@ -477,33 +490,14 @@
 
 
         // --------------------------------
-        // 엽서 선택
+        // 엽서 선택 버튼
         // --------------------------------
-
-        function openPhotoPicker() {
-
-            photoInput.click();
-
-        }
-
 
         selectButton.addEventListener(
             "click",
             function () {
 
-                openPhotoPicker();
-
-            }
-        );
-
-
-        changePhotoButton.addEventListener(
-            "click",
-            function () {
-
-                photoInput.value = "";
-
-                openPhotoPicker();
+                photoInput.click();
 
             }
         );
@@ -541,17 +535,8 @@
                     false;
 
 
-                // 다른 엽서 버튼 표시
-                changePhotoButton.hidden =
-                    false;
-
-
                 // 다운로드 활성화
                 downloadPng.disabled =
-                    false;
-
-
-                downloadJpg.disabled =
                     false;
 
             }
@@ -562,11 +547,9 @@
         // 이미지 합성 및 다운로드
         // --------------------------------
 
-        function downloadComposite(format) {
+        function downloadComposite() {
 
-            if (
-                !photo.src
-            ) {
+            if (!photo.src) {
 
                 alert(
                     "먼저 엽서를 선택해주세요."
@@ -599,10 +582,8 @@
             photoImage.onload =
                 function () {
 
-
                     frameImage.onload =
                         function () {
-
 
                             const canvas =
                                 document.createElement(
@@ -644,31 +625,7 @@
                             );
 
 
-                            let mimeType;
-                            let extension;
-
-
-                            if (
-                                format === "png"
-                            ) {
-
-                                mimeType =
-                                    "image/png";
-
-                                extension =
-                                    "png";
-
-                            } else {
-
-                                mimeType =
-                                    "image/jpeg";
-
-                                extension =
-                                    "jpg";
-
-                            }
-
-
+                            // PNG로 저장
                             canvas.toBlob(
                                 function (blob) {
 
@@ -700,8 +657,7 @@
 
 
                                     link.download =
-                                        "pikmin-postcard." +
-                                        extension;
+                                        "pikmin-postcard.png";
 
 
                                     document.body.appendChild(
@@ -729,8 +685,7 @@
                                     );
 
                                 },
-                                mimeType,
-                                0.95
+                                "image/png"
                             );
 
                         };
@@ -748,27 +703,15 @@
         }
 
 
-        // PNG 저장
+        // --------------------------------
+        // PNG 저장 버튼
+        // --------------------------------
+
         downloadPng.addEventListener(
             "click",
             function () {
 
-                downloadComposite(
-                    "png"
-                );
-
-            }
-        );
-
-
-        // JPG 저장
-        downloadJpg.addEventListener(
-            "click",
-            function () {
-
-                downloadComposite(
-                    "jpg"
-                );
+                downloadComposite();
 
             }
         );
